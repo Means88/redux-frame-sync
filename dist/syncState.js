@@ -9,7 +9,11 @@ exports.isActionAllowed = isActionAllowed;
 exports.isActionSynced = isActionSynced;
 exports.MessageListener = MessageListener;
 
-var _broadcastChannel = require('broadcast-channel');
+var _frameBroadcastChannel = require('./frameBroadcastChannel');
+
+var _frameBroadcastChannel2 = _interopRequireDefault(_frameBroadcastChannel);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var lastUuid = 0;
 var GET_INIT_STATE = '&_GET_INIT_STATE';
@@ -128,7 +132,7 @@ var createStateSyncMiddleware = exports.createStateSyncMiddleware = function cre
     var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultConfig;
 
     var allowed = isActionAllowed(config);
-    var channel = new _broadcastChannel.BroadcastChannel(config.channel, config.broadcastChannelOption);
+    var channel = new _frameBroadcastChannel2.default(config.channel);
     var prepareState = config.prepareState || defaultConfig.prepareState;
     var messageListener = null;
 

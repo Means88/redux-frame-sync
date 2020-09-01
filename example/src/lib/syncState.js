@@ -1,7 +1,7 @@
+'use strict';
 
-
-Object.defineProperty(exports, '__esModule', {
-    value: true,
+Object.defineProperty(exports, "__esModule", {
+    value: true
 });
 exports.initMessageListener = exports.initStateWithPrevTab = exports.withReduxStateSync = exports.createReduxStateSync = exports.createStateSyncMiddleware = undefined;
 exports.generateUuidForAction = generateUuidForAction;
@@ -9,64 +9,66 @@ exports.isActionAllowed = isActionAllowed;
 exports.isActionSynced = isActionSynced;
 exports.MessageListener = MessageListener;
 
-const _broadcastChannel = require('broadcast-channel');
+var _frameBroadcastChannel = require('./frameBroadcastChannel');
 
-let lastUuid = 0;
-const GET_INIT_STATE = '&_GET_INIT_STATE';
-const SEND_INIT_STATE = '&_SEND_INIT_STATE';
-const RECEIVE_INIT_STATE = '&_RECEIVE_INIT_STATE';
-const INIT_MESSAGE_LISTENER = '&_INIT_MESSAGE_LISTENER';
+var _frameBroadcastChannel2 = _interopRequireDefault(_frameBroadcastChannel);
 
-const defaultConfig = {
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var lastUuid = 0;
+var GET_INIT_STATE = '&_GET_INIT_STATE';
+var SEND_INIT_STATE = '&_SEND_INIT_STATE';
+var RECEIVE_INIT_STATE = '&_RECEIVE_INIT_STATE';
+var INIT_MESSAGE_LISTENER = '&_INIT_MESSAGE_LISTENER';
+
+var defaultConfig = {
     channel: 'redux_state_sync',
     predicate: null,
     blacklist: [],
     whitelist: [],
-    broadcastChannelOption: null,
+    broadcastChannelOption: undefined,
     prepareState: function prepareState(state) {
         return state;
-    },
+    }
 };
 
-const getIniteState = function getIniteState() {
+var getIniteState = function getIniteState() {
     return { type: GET_INIT_STATE };
 };
-const sendIniteState = function sendIniteState() {
+var sendIniteState = function sendIniteState() {
     return { type: SEND_INIT_STATE };
 };
-const receiveIniteState = function receiveIniteState(state) {
+var receiveIniteState = function receiveIniteState(state) {
     return { type: RECEIVE_INIT_STATE, payload: state };
 };
-const initListener = function initListener() {
+var initListener = function initListener() {
     return { type: INIT_MESSAGE_LISTENER };
 };
 
 function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-        .toString(16)
-        .substring(1);
+    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 }
 
 function guid() {
-    return `${  s4()  }${s4()  }-${  s4()  }-${  s4()  }-${  s4()  }-${  s4()  }${s4()  }${s4()}`;
+    return '' + s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
 
 // generate current window unique id
-const WINDOW_STATE_SYNC_ID = guid();
+var WINDOW_STATE_SYNC_ID = guid();
 // export for test
 function generateUuidForAction(action) {
-    const stampedAction = action;
+    var stampedAction = action;
     stampedAction.$uuid = guid();
     stampedAction.$wuid = WINDOW_STATE_SYNC_ID;
     return stampedAction;
 }
 // export for test
 function isActionAllowed(_ref) {
-    const {predicate} = _ref;
-        const {blacklist} = _ref;
-        const {whitelist} = _ref;
+    var predicate = _ref.predicate,
+        blacklist = _ref.blacklist,
+        whitelist = _ref.whitelist;
 
-    let allowed = function allowed() {
+    var allowed = function allowed() {
         return true;
     };
 
@@ -89,13 +91,13 @@ function isActionSynced(action) {
 }
 // export for test
 function MessageListener(_ref2) {
-    const {channel} = _ref2;
-        const {dispatch} = _ref2;
-        const {allowed} = _ref2;
+    var channel = _ref2.channel,
+        dispatch = _ref2.dispatch,
+        allowed = _ref2.allowed;
 
-    let isSynced = false;
-    const tabs = {};
-    this.handleOnMessage = function(stampedAction) {
+    var isSynced = false;
+    var tabs = {};
+    this.handleOnMessage = function (stampedAction) {
         // Ignore if this action is triggered by this window
         if (stampedAction.$wuid === WINDOW_STATE_SYNC_ID) {
             return;
@@ -116,11 +118,9 @@ function MessageListener(_ref2) {
                 }
             } else if (allowed(stampedAction)) {
                 lastUuid = stampedAction.$uuid;
-                dispatch(
-                    Object.assign(stampedAction, {
-                        $isSync: true,
-                    }),
-                );
+                dispatch(Object.assign(stampedAction, {
+                    $isSync: true
+                }));
             }
         }
     };
@@ -128,26 +128,26 @@ function MessageListener(_ref2) {
     this.messageChannel.onmessage = this.handleOnMessage;
 }
 
-const createStateSyncMiddleware = (exports.createStateSyncMiddleware = function createStateSyncMiddleware() {
-    const config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultConfig;
+var createStateSyncMiddleware = exports.createStateSyncMiddleware = function createStateSyncMiddleware() {
+    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultConfig;
 
-    const allowed = isActionAllowed(config);
-    const channel = new _broadcastChannel.BroadcastChannel(config.channel, config.broadcastChannelOption);
-    const prepareState = config.prepareState || defaultConfig.prepareState;
-    let messageListener = null;
+    var allowed = isActionAllowed(config);
+    var channel = new _frameBroadcastChannel2.default(config.channel);
+    var prepareState = config.prepareState || defaultConfig.prepareState;
+    var messageListener = null;
 
-    return function(_ref3) {
-        const {getState} = _ref3;
-            const {dispatch} = _ref3;
-        return function(next) {
-            return function(action) {
+    return function (_ref3) {
+        var getState = _ref3.getState,
+            dispatch = _ref3.dispatch;
+        return function (next) {
+            return function (action) {
                 // create message receiver
                 if (!messageListener) {
-                    messageListener = new MessageListener({ channel, dispatch, allowed });
+                    messageListener = new MessageListener({ channel: channel, dispatch: dispatch, allowed: allowed });
                 }
                 // post messages
                 if (action && !action.$uuid) {
-                    const stampedAction = generateUuidForAction(action);
+                    var stampedAction = generateUuidForAction(action);
                     lastUuid = stampedAction.$uuid;
                     try {
                         if (action.type === SEND_INIT_STATE) {
@@ -164,36 +164,34 @@ const createStateSyncMiddleware = (exports.createStateSyncMiddleware = function 
                         console.error("Your browser doesn't support cross tab communication");
                     }
                 }
-                return next(
-                    Object.assign(action, {
-                        $isSync: typeof action.$isSync === 'undefined' ? false : action.$isSync,
-                    }),
-                );
+                return next(Object.assign(action, {
+                    $isSync: typeof action.$isSync === 'undefined' ? false : action.$isSync
+                }));
             };
         };
     };
-});
+};
 
 // eslint-disable-next-line max-len
-const createReduxStateSync = (exports.createReduxStateSync = function createReduxStateSync(appReducer) {
-    const prepareState = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultConfig.prepareState;
-    return function(state, action) {
-        let initState = state;
+var createReduxStateSync = exports.createReduxStateSync = function createReduxStateSync(appReducer) {
+    var prepareState = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultConfig.prepareState;
+    return function (state, action) {
+        var initState = state;
         if (action.type === RECEIVE_INIT_STATE) {
             initState = prepareState(action.payload);
         }
         return appReducer(initState, action);
     };
-});
+};
 
 // init state with other tab's state
-const withReduxStateSync = (exports.withReduxStateSync = createReduxStateSync);
+var withReduxStateSync = exports.withReduxStateSync = createReduxStateSync;
 
-const initStateWithPrevTab = (exports.initStateWithPrevTab = function initStateWithPrevTab(_ref4) {
-    const {dispatch} = _ref4;
+var initStateWithPrevTab = exports.initStateWithPrevTab = function initStateWithPrevTab(_ref4) {
+    var dispatch = _ref4.dispatch;
 
     dispatch(getIniteState());
-});
+};
 
 /*
 if don't dispath any action, the store.dispath will not be available for message listener.
@@ -201,8 +199,8 @@ therefor need to trigger an empty action to init the messageListener.
 
 however, if already using initStateWithPrevTab, this function will be redundant
 */
-const initMessageListener = (exports.initMessageListener = function initMessageListener(_ref5) {
-    const {dispatch} = _ref5;
+var initMessageListener = exports.initMessageListener = function initMessageListener(_ref5) {
+    var dispatch = _ref5.dispatch;
 
     dispatch(initListener());
-});
+};

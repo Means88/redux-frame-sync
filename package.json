@@ -1,8 +1,9 @@
 {
-    "name": "redux-state-sync",
-    "version": "3.1.2",
-    "description": "A middleware for redux to sync state in different tabs",
+    "name": "redux-frame-sync",
+    "version": "0.1.0",
+    "description": "A middleware for redux to sync state in iframes",
     "main": "dist/syncState.js",
+    "typings": "index.d.ts",
     "scripts": {
         "test": "jest",
         "commit": "git-cz",
@@ -15,7 +16,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/AOHUA/redux-state-sync.git"
+        "url": "https://github.com/Means88/redux-frame-sync.git"
     },
     "keywords": [
         "redux",
@@ -26,12 +27,12 @@
         "tabs",
         "middleware"
     ],
-    "author": "AOHUA",
-    "license": "ISC",
+    "author": "Means88",
+    "license": "MIT",
     "bugs": {
-        "url": "https://github.com/AOHUA/redux-state-sync/issues"
+        "url": "https://github.com/Means88/redux-frame-sync/issues"
     },
-    "homepage": "https://github.com/AOHUA/redux-state-sync#readme",
+    "homepage": "https://github.com/Means88/redux-frame-sync#readme",
     "devDependencies": {
         "babel-cli": "^6.26.0",
         "babel-jest": "^25.1.0",
@@ -55,9 +56,6 @@
         "semantic-release": "^17.0.4",
         "webpack": "^4.42.0",
         "webpack-cli": "^3.3.11"
-    },
-    "dependencies": {
-        "broadcast-channel": "^3.1.0"
     },
     "jest": {
         "setupFiles": [

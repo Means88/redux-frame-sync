@@ -1,3 +1,7 @@
+Forked
+
+---
+
 <p align="center">
   <a href="https://github.com/AOHUA/redux-state-sync">
     <img src="./logo.png" width="300px" />

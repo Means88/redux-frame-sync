@@ -1,4 +1,4 @@
-import { BroadcastChannel } from 'broadcast-channel';
+import FrameBroadcastChannel from './frameBroadcastChannel';
 
 let lastUuid = 0;
 const GET_INIT_STATE = '&_GET_INIT_STATE';
@@ -95,7 +95,7 @@ export function MessageListener({ channel, dispatch, allowed }) {
 
 export const createStateSyncMiddleware = (config = defaultConfig) => {
     const allowed = isActionAllowed(config);
-    const channel = new BroadcastChannel(config.channel, config.broadcastChannelOption);
+    const channel = new FrameBroadcastChannel(config.channel);
     const prepareState = config.prepareState || defaultConfig.prepareState;
     let messageListener = null;
 
